@@ -44,8 +44,10 @@ const reelPosters = [
 ];
 
 const videoSource = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+const nameLetters = ['A', 'R', 'J', 'U', 'N'];
 
 function ReelCard({ reel, index }: { reel: typeof reelPosters[number]; index: number }) {
+  const letter = nameLetters[index % nameLetters.length];
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -88,6 +90,14 @@ function ReelCard({ reel, index }: { reel: typeof reelPosters[number]; index: nu
       />
 
       <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/10 to-primary/20 pointer-events-none" />
+
+      {/* Large letter watermark */}
+      <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-500 ${playing ? 'opacity-0' : 'opacity-100'}`}>
+        <span className="font-display font-bold text-primary/15 text-[10rem] md:text-[14rem] leading-none tracking-tighter select-none">
+          {letter}
+        </span>
+      </div>
+
       <div className="absolute inset-0 p-4 md:p-5 flex flex-col justify-between pointer-events-none">
         <div className="flex items-center justify-between">
           <span className="font-display font-bold text-[10px] tracking-tight text-primary uppercase">ARJUN</span>
