@@ -161,7 +161,7 @@ export default function Showreel() {
         <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-gradient-to-r from-primary to-transparent pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-gradient-to-l from-primary to-transparent pointer-events-none" />
         <motion.div
-          initial={{ x: '-100vw' }}
+          initial={{ x: '100vw' }}
           whileInView={{ x: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
