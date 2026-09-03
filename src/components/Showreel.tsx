@@ -46,6 +46,27 @@ const reelPosters = [
 const videoSource = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
 const nameLetters = ['A', 'R', 'J', 'U', 'N'];
 
+let audioCtx: AudioContext | null = null;
+
+function playBeep(frequency = 880, duration = 0.08, type: OscillatorType = 'sine') {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const ctx = audioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = frequency;
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch {
+    // audio not available
+  }
+}
+
 function ReelCard({ reel, index }: { reel: typeof reelPosters[number]; index: number }) {
   const letter = nameLetters[index % nameLetters.length];
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -62,8 +83,10 @@ function ReelCard({ reel, index }: { reel: typeof reelPosters[number]; index: nu
     if (playing) {
       video.pause();
       setPlaying(false);
+      playBeep(440, 0.06, 'square');
       return;
     }
+    playBeep(880, 0.08, 'sine');
     void video.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
   };
 
@@ -124,7 +147,10 @@ function ReelCard({ reel, index }: { reel: typeof reelPosters[number]; index: nu
       {playing && (
         <button
           type="button"
-          onClick={() => setMuted((value) => !value)}
+          onClick={() => {
+            setMuted((value) => !value);
+            playBeep(660, 0.05, 'triangle');
+          }}
           className="absolute bottom-4 right-4 z-10 w-8 h-8 rounded-full border border-primary/30 bg-primary/30 backdrop-blur-sm flex items-center justify-center text-primary hover:text-accent transition-colors"
           aria-label={muted ? 'Unmute reel' : 'Mute reel'}
         >
