@@ -160,11 +160,17 @@ export default function Showreel() {
       <div className="relative w-full overflow-hidden">
         <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-gradient-to-r from-primary to-transparent pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-gradient-to-l from-primary to-transparent pointer-events-none" />
-        <div className="flex gap-3 md:gap-5 w-max animate-reel-strip hover:[animation-play-state:paused]">
+        <motion.div
+          initial={{ x: '-100vw' }}
+          whileInView={{ x: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          className="flex gap-3 md:gap-5 w-max animate-reel-strip hover:[animation-play-state:paused]"
+        >
           {reels.map((reel, index) => (
             <ReelCard key={`${reel.title}-${index}`} reel={reel} index={index % reelPosters.length} />
           ))}
-        </div>
+        </motion.div>
       </div>
 
       <div className="max-w-[1600px] mx-auto px-5 md:px-10 mt-8 flex flex-wrap items-center justify-between gap-4">
