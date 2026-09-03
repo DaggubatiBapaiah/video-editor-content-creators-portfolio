@@ -1,23 +1,136 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef, useState } from 'react';
-import { Play } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { Play, Volume2, VolumeX } from 'lucide-react';
 import RevealText from './RevealText';
 
 const metaItems = ['EDITING', 'COLOR', 'MOTION', 'SOUND DESIGN'];
 
-export default function Showreel() {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start end', 'end start'],
-  });
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 0.97]);
-  const [hovering, setHovering] = useState(false);
+const reelPosters = [
+  {
+    title: 'NOVA / MADE TO MOVE',
+    category: 'BRAND FILM',
+    image: 'https://images.pexels.com/photos/9692675/pexels-photo-9692675.jpeg?auto=compress&cs=tinysrgb&w=900',
+  },
+  {
+    title: 'THE CREATOR’S EDGE',
+    category: 'LONG-FORM',
+    image: 'https://images.pexels.com/photos/8102680/pexels-photo-8102680.jpeg?auto=compress&cs=tinysrgb&w=900',
+  },
+  {
+    title: '30 DAYS / 30 REELS',
+    category: 'SHORT-FORM',
+    image: 'https://images.pexels.com/photos/8357670/pexels-photo-8357670.jpeg?auto=compress&cs=tinysrgb&w=900',
+  },
+  {
+    title: 'LUMA / LIGHT IN MOTION',
+    category: 'PRODUCT FILM',
+    image: 'https://images.pexels.com/photos/36779955/pexels-photo-36779955.jpeg?auto=compress&cs=tinysrgb&w=900',
+  },
+  {
+    title: 'THE DAILY CUT',
+    category: 'CREATOR CONTENT',
+    image: 'https://images.pexels.com/photos/8371391/pexels-photo-8371391.jpeg?auto=compress&cs=tinysrgb&w=900',
+  },
+  {
+    title: 'MONSOON / SLOW POUR',
+    category: 'CAMPAIGN',
+    image: 'https://images.pexels.com/photos/14679166/pexels-photo-14679166.jpeg?auto=compress&cs=tinysrgb&w=900',
+  },
+  {
+    title: 'AETHER / AFTER DARK',
+    category: 'MOTION STUDY',
+    image: 'https://images.pexels.com/photos/19311587/pexels-photo-19311587.jpeg?auto=compress&cs=tinysrgb&w=900',
+  },
+];
+
+const videoSource = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+
+function ReelCard({ reel, index }: { reel: typeof reelPosters[number]; index: number }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(true);
+
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.muted = muted;
+  }, [muted]);
+
+  const togglePlayback = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (playing) {
+      video.pause();
+      setPlaying(false);
+      return;
+    }
+    void video.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+  };
 
   return (
-    <section id="showreel" ref={ref} className="relative bg-primary py-20 md:py-32 px-5 md:px-10">
-      <div className="max-w-[1600px] mx-auto">
-        {/* Title */}
+    <article
+      className="relative w-[72vw] sm:w-[48vw] md:w-[31vw] lg:w-[24vw] xl:w-[21vw] shrink-0 aspect-[16/10] overflow-hidden border border-white/10 bg-secondary group"
+      data-cursor="play"
+    >
+      <img
+        src={reel.image}
+        alt={`${reel.title} poster`}
+        className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${playing ? 'opacity-0 scale-105' : 'opacity-100 scale-100 group-hover:scale-105'}`}
+      />
+      <video
+        ref={videoRef}
+        src={videoSource}
+        poster={reel.image}
+        muted={muted}
+        loop
+        playsInline
+        preload="metadata"
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${playing ? 'opacity-100' : 'opacity-0'}`}
+        aria-label={`${reel.title} video preview`}
+      />
+
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/10 to-primary/20 pointer-events-none" />
+      <div className="absolute inset-0 p-4 md:p-5 flex flex-col justify-between pointer-events-none">
+        <div className="flex items-center justify-between">
+          <span className="font-display font-bold text-[10px] tracking-tight text-primary uppercase">ARJUN</span>
+          <span className="font-body text-[9px] tracking-[0.18em] text-primary/80 uppercase">REEL 0{index + 1}</span>
+        </div>
+        <div>
+          <p className="font-body text-[9px] tracking-[0.18em] text-primary/60 uppercase mb-1">{reel.category}</p>
+          <h3 className="font-display font-bold text-primary text-lg md:text-xl tracking-tight leading-none">{reel.title}</h3>
+          <span className="font-body text-[9px] tracking-[0.18em] text-accent uppercase mt-2 block">Click to play</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={togglePlayback}
+        className="absolute inset-0 flex items-center justify-center focus:outline-none"
+        aria-label={playing ? `Pause ${reel.title}` : `Play ${reel.title}`}
+      >
+        <span className={`w-12 h-12 md:w-14 md:h-14 rounded-full border border-primary/50 bg-primary/10 backdrop-blur-sm flex items-center justify-center transition-all duration-300 group-hover:border-accent group-hover:bg-accent/15 ${playing ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
+          <Play size={16} className="text-accent ml-0.5" fill="currentColor" />
+        </span>
+      </button>
+
+      {playing && (
+        <button
+          type="button"
+          onClick={() => setMuted((value) => !value)}
+          className="absolute bottom-4 right-4 z-10 w-8 h-8 rounded-full border border-primary/30 bg-primary/30 backdrop-blur-sm flex items-center justify-center text-primary hover:text-accent transition-colors"
+          aria-label={muted ? 'Unmute reel' : 'Mute reel'}
+        >
+          {muted ? <VolumeX size={13} /> : <Volume2 size={13} />}
+        </button>
+      )}
+    </article>
+  );
+}
+
+export default function Showreel() {
+  const reels = [...reelPosters, ...reelPosters];
+
+  return (
+    <section id="showreel" className="relative bg-primary py-20 md:py-32 overflow-hidden">
+      <div className="max-w-[1600px] mx-auto px-5 md:px-10">
         <div className="flex items-end justify-between mb-8 md:mb-12">
           <RevealText className="font-display font-bold text-primary text-5xl md:text-7xl lg:text-8xl tracking-tight">
             {'SHOWREEL'}
@@ -32,94 +145,28 @@ export default function Showreel() {
             / 2026
           </motion.span>
         </div>
+      </div>
 
-        {/* Cinema screen */}
-        <motion.div
-          style={{ scale }}
-          className="relative w-full aspect-video rounded-sm overflow-hidden group cursor-none"
-          data-cursor="play"
-          onMouseEnter={() => setHovering(true)}
-          onMouseLeave={() => setHovering(false)}
-        >
-          {/* Poster image */}
-          <motion.div
-            animate={{ scale: hovering ? 1.05 : 1 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-0"
-          >
-            <img
-              src="https://images.pexels.com/photos/34410058/pexels-photo-34410058.jpeg?auto=compress&cs=tinysrgb&w=1920"
-              alt="Showreel poster"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-primary/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-transparent to-primary/30" />
-
-          {/* Letterbox bars */}
-          <div className="absolute top-0 left-0 right-0 h-[3%] bg-primary" />
-          <div className="absolute bottom-0 left-0 right-0 h-[3%] bg-primary" />
-
-          {/* Center play */}
-          <motion.div
-            animate={{ opacity: hovering ? 0 : 1, scale: hovering ? 0.8 : 1 }}
-            transition={{ duration: 0.4 }}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border border-primary/30 backdrop-blur-sm flex items-center justify-center">
-              <Play size={20} className="text-primary ml-1" fill="currentColor" />
-            </div>
-          </motion.div>
-
-          {/* Top metadata bar */}
-          <div className="absolute top-[5%] left-4 md:left-8 right-4 md:right-8 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="block w-2 h-2 rounded-full bg-accent animate-pulse" />
-              <span className="font-body text-[10px] tracking-[0.2em] text-primary/70 uppercase">Now Playing</span>
-            </div>
-            <span className="font-display text-xs text-primary/70 tracking-widest">01:24</span>
-          </div>
-
-          {/* Bottom metadata */}
-          <div className="absolute bottom-[5%] left-4 md:left-8 right-4 md:right-8">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-              {metaItems.map((item, i) => (
-                <motion.span
-                  key={item}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
-                  className="font-body text-[10px] md:text-[11px] tracking-[0.2em] text-primary/60 uppercase"
-                >
-                  {item}
-                </motion.span>
-              ))}
-            </div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="mt-3 flex items-center gap-2"
-            >
-              <span className="font-display font-bold text-primary text-lg md:text-2xl">PLAY REEL</span>
-              <span className="text-accent text-lg md:text-2xl">→</span>
-            </motion.div>
-          </div>
-
-          {/* Corner marks */}
-          {[
-            'top-4 left-4 border-t border-l',
-            'top-4 right-4 border-t border-r',
-            'bottom-4 left-4 border-b border-l',
-            'bottom-4 right-4 border-b border-r',
-          ].map((cls) => (
-            <div key={cls} className={`absolute w-4 h-4 border-primary/20 ${cls}`} />
+      <div className="relative w-full overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-gradient-to-r from-primary to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-gradient-to-l from-primary to-transparent pointer-events-none" />
+        <div className="flex gap-3 md:gap-5 w-max animate-reel-strip hover:[animation-play-state:paused]">
+          {reels.map((reel, index) => (
+            <ReelCard key={`${reel.title}-${index}`} reel={reel} index={index % reelPosters.length} />
           ))}
-        </motion.div>
+        </div>
+      </div>
+
+      <div className="max-w-[1600px] mx-auto px-5 md:px-10 mt-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="block w-2 h-2 rounded-full bg-accent animate-pulse" />
+          <span className="font-body text-[10px] tracking-[0.2em] text-secondary uppercase">7 reels / 2026</span>
+        </div>
+        <div className="flex items-center gap-4">
+          {metaItems.map((item) => (
+            <span key={item} className="font-body text-[10px] tracking-[0.2em] text-secondary/70 uppercase">{item}</span>
+          ))}
+        </div>
       </div>
     </section>
   );
